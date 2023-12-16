@@ -32,28 +32,28 @@ Matrix4 MeshTransformations::rotationMatrixAlongX(double angle){
     return result;
 }
 
-Matrix4 MeshTransformations::translateMesh(Translation &t, Matrix4 &m) {
+Matrix4 MeshTransformations::translateMesh(Translation *t, Matrix4 &m) {
     double val[4][4] = {
-        {1, 0, 0, t.tx},
-        {0, 1, 0, t.ty},
-        {0, 0, 1, t.tz},
+        {1, 0, 0, t->tx},
+        {0, 1, 0, t->ty},
+        {0, 0, 1, t->tz},
         {0, 0, 0, 1}};
     Matrix4 result(val);
     return multiplyMatrixWithMatrix(result, m);
 }
-Matrix4 MeshTransformations::scaleMesh(Scaling &s, Matrix4 &m) {
+Matrix4 MeshTransformations::scaleMesh(Scaling *s, Matrix4 &m) {
     double val[4][4] = {
-        {s.sx, 0, 0, 0},
-        {0, s.sy, 0, 0},
-        {0, 0, s.sz, 0},
+        {s->sx, 0, 0, 0},
+        {0, s->sy, 0, 0},
+        {0, 0, s->sz, 0},
         {0, 0, 0, 1}};
     Matrix4 result(val);
     return multiplyMatrixWithMatrix(result, m);
 }
-Matrix4 MeshTransformations::rotateMesh(Rotation &r, Matrix4 &matrix) {
+Matrix4 MeshTransformations::rotateMesh(Rotation *r, Matrix4 &matrix) {
     // using the orthonormal method (slide modelling transformations starting
     // from page 41)
-    Vec3 u(r.ux, r.uy, r.uz);
+    Vec3 u(r->ux, r->uy, r->uz);
     Vec3 v;
     double min = min_of_three(u.x, u.y, u.z);
     if (min == u.x) {
@@ -76,5 +76,23 @@ Matrix4 MeshTransformations::rotateMesh(Rotation &r, Matrix4 &matrix) {
     Matrix4 m_inverse_mult_rotatation = multiplyMatrixWithMatrix(m_inverse, rotationMatrixAlongX(r.angle));
     Matrix4 result = multiplyMatrixWithMatrix(m_inverse_mult_rotatation, m);
     return multiplyMatrixWithMatrix(result, matrix);
-
 } 
+
+Matrix4 MeshTransformations::applyAllTransformations(
+    int num_transformations, std::vector<char> &transformation_types,
+    std::vector<int> &transformation_ids,
+    std::vector<Translation*> &translations, std::vector<Scaling*> &scalings,
+    std::vector<Rotation*> &rotations) {
+    Matrix4 result = getIdentityMatrix();
+    for (int i = 0; i < num_transformations; i++) {
+        if (transformation_types[i] == TRANSLATION) {
+            result = translateMesh(translations[transformation_ids[i] - 1],
+                                   result);
+        } else if (transformation_types[i] == SCALING) {
+            result = scaleMesh(scalings[transformation_ids[i] - 1], result);
+        } else if (transformation_types[i] == ROTATION) {
+            result = rotateMesh(rotations[transformation_ids[i] - 1], result);
+        }
+    }
+    return result;
+}

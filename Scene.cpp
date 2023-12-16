@@ -366,7 +366,11 @@ void Scene::forwardRenderingPipeline(Camera *camera)
     Matrix4 viewportTransformationMatrix = Utils::viewportMatrix(camera->horRes, camera->verRes);
 
     for(const Mesh *m : this -> meshes)
+    for(Mesh *m : this -> meshes)
     {
+        Matrix4 meshTransformationMatrix = MeshTransformations::applyAllTransformations(m->numberOfTransformations, m->transformationTypes, m->transformationIds, this->translations, this->scalings, this->rotations);
+        Matrix4 proj_mult_camera = multiplyMatrixWithMatrix(projectionTransformationMatrix, cameraTransformationMatrix);
+        Matrix4 final = multiplyMatrixWithMatrix(proj_mult_camera, meshTransformationMatrix);
 
     }
 

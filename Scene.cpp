@@ -348,7 +348,6 @@ void Scene::convertPPMToPNG(string ppmFileName)
 {
 	string command;
 
-	// TODO: Change implementation if necessary.
 	command = "magick convert " + ppmFileName + " " + ppmFileName + ".png";
 	system(command.c_str());
 }
@@ -424,6 +423,11 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                 std::vector<Color> colors = {*c0, *c1, *c2};
                 TriangleTransformations::rasterize(this->image,triangle_vertices,colors,camera->horRes,camera->verRes);
             }
+            else if(m->type == WIREFRAME_MESH)
+            {
+                // TODO
+            }
+
         }
 
     }

@@ -369,7 +369,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
     if(camera->projectionType == PERSPECTIVE_PROJECTION){
         projectionTransformationMatrix = Utils::perspectiveProjectionMatrix(l, r, b, t, n, f);
     }
-    else{
+    else if (camera->projectionType == ORTOGRAPHIC_PROJECTION){
         projectionTransformationMatrix = Utils::orthographicProjectionMatrix(l, r, b, t, n, f);
     }
     Matrix4 viewportTransformationMatrix = Utils::viewportMatrix(camera->horRes, camera->verRes);

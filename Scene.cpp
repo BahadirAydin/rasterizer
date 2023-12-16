@@ -14,6 +14,8 @@
 #include "Scene.h"
 
 #include "Utils.h"
+#include "MeshTransformations.h"
+#include "TriangleTransformations.h"
 
 using namespace tinyxml2;
 using namespace std;
@@ -365,12 +367,17 @@ void Scene::forwardRenderingPipeline(Camera *camera)
     Matrix4 projectionTransformationMatrix = Utils::perspectiveProjectionMatrix(l, r, b, t, n, f);
     Matrix4 viewportTransformationMatrix = Utils::viewportMatrix(camera->horRes, camera->verRes);
 
-    for(const Mesh *m : this -> meshes)
     for(Mesh *m : this -> meshes)
     {
         Matrix4 meshTransformationMatrix = MeshTransformations::applyAllTransformations(m->numberOfTransformations, m->transformationTypes, m->transformationIds, this->translations, this->scalings, this->rotations);
         Matrix4 proj_mult_camera = multiplyMatrixWithMatrix(projectionTransformationMatrix, cameraTransformationMatrix);
         Matrix4 final = multiplyMatrixWithMatrix(proj_mult_camera, meshTransformationMatrix);
+
+        for(Triangle &t : m->triangles)
+        {
+            std::vector<Vec4> transformed_vertices = TriangleTransformations::transformTriangle(t, final , this->vertices);
+            
+        }
 
     }
 

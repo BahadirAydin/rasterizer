@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "Camera.h"
 #include "Matrix4.h"
 #include "Mesh.h"
 #include "tinyxml2.h"
@@ -364,7 +365,13 @@ void Scene::forwardRenderingPipeline(Camera *camera)
     double t = camera->top;
     double n = camera->near;
     double f = camera->far;
-    Matrix4 projectionTransformationMatrix = Utils::perspectiveProjectionMatrix(l, r, b, t, n, f);
+    Matrix4 projectionTransformationMatrix;
+    if(camera->projectionType == PERSPECTIVE_PROJECTION){
+        projectionTransformationMatrix = Utils::perspectiveProjectionMatrix(l, r, b, t, n, f);
+    }
+    else{
+        projectionTransformationMatrix = Utils::orthographicProjectionMatrix(l, r, b, t, n, f);
+    }
     Matrix4 viewportTransformationMatrix = Utils::viewportMatrix(camera->horRes, camera->verRes);
     Matrix4 proj_mult_camera = multiplyMatrixWithMatrix(projectionTransformationMatrix, cameraTransformationMatrix);
 
@@ -425,7 +432,24 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             }
             else if(m->type == WIREFRAME_MESH)
             {
+                // PERSPECTIVE DIVIDE
+                const Vec4 pers_v0 = Vec4({
+                    transformed_vertices[0].x / transformed_vertices[0].t,
+                    transformed_vertices[0].y / transformed_vertices[0].t,
+                    transformed_vertices[0].z / transformed_vertices[0].t, 
+                    1});
+                const Vec4 pers_v1 = Vec4{
+                    transformed_vertices[1].x / transformed_vertices[1].t,
+                    transformed_vertices[1].y / transformed_vertices[1].t,
+                    transformed_vertices[1].z / transformed_vertices[1].t, 
+                    1};
+                const Vec4 pers_v2 = Vec4{
+                    transformed_vertices[2].x / transformed_vertices[2].t,
+                    transformed_vertices[2].y / transformed_vertices[2].t,
+                    transformed_vertices[2].z / transformed_vertices[2].t, 
+                    1};
                 // TODO
+
             }
 
         }

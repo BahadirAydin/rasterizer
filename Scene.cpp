@@ -394,15 +394,15 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             if(this->cullingEnabled)
             {
                 // check if triangle is backfacing
-                const Vec3 new_v0 = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z}; 
-                const Vec3 new_v1 = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
-                const Vec3 new_v2 = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
+                const Vec3 new_v0 = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z, v0 -> colorId}; 
+                const Vec3 new_v1 = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z, v1 -> colorId};
+                const Vec3 new_v2 = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z, v2 -> colorId};
 
                 const Vec3 v0v1 = subtractVec3(new_v1, new_v0);
                 const Vec3 v0v2 = subtractVec3(new_v2, new_v0);
                 const Vec3 cp = crossProductVec3(v0v1, v0v2);
                 const Vec3 normal = normalizeVec3(cp);
-                if (dotProductVec3(normal, new_v0) > 0) {
+                if (dotProductVec3(normal, new_v0) < 0) {
                     continue;
                 }
             }

@@ -366,13 +366,12 @@ void Scene::forwardRenderingPipeline(Camera *camera)
     double f = camera->far;
     Matrix4 projectionTransformationMatrix = Utils::perspectiveProjectionMatrix(l, r, b, t, n, f);
     Matrix4 viewportTransformationMatrix = Utils::viewportMatrix(camera->horRes, camera->verRes);
+    Matrix4 proj_mult_camera = multiplyMatrixWithMatrix(projectionTransformationMatrix, cameraTransformationMatrix);
 
     for(Mesh *m : this -> meshes)
     {
         Matrix4 meshTransformationMatrix = MeshTransformations::applyAllTransformations(m->numberOfTransformations, m->transformationTypes, m->transformationIds, this->translations, this->scalings, this->rotations);
-        Matrix4 proj_mult_camera = multiplyMatrixWithMatrix(projectionTransformationMatrix, cameraTransformationMatrix);
         Matrix4 final = multiplyMatrixWithMatrix(proj_mult_camera, meshTransformationMatrix);
-
 
         for(Triangle &t : m->triangles)
         {
@@ -383,6 +382,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             const Color *c1 = this->colorsOfVertices[v1->colorId - 1];
             const Color *c2 = this->colorsOfVertices[v2->colorId - 1];
             std::vector<Vec4> transformed_vertices = TriangleTransformations::transformTriangle(t, final , this->vertices);
+
 
             if(this->cullingEnabled)
             {
@@ -406,17 +406,17 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                     transformed_vertices[0].x / transformed_vertices[0].t,
                     transformed_vertices[0].y / transformed_vertices[0].t,
                     transformed_vertices[0].z / transformed_vertices[0].t, 
-                    transformed_vertices[0].t}));
+                    1}));
                 const Vec4 p_v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, Vec4{
                     transformed_vertices[1].x / transformed_vertices[1].t,
                     transformed_vertices[1].y / transformed_vertices[1].t,
                     transformed_vertices[1].z / transformed_vertices[1].t, 
-                    transformed_vertices[1].t});
+                    1});
                 const Vec4 p_v2 = multiplyMatrixWithVec4(viewportTransformationMatrix,Vec4{
                     transformed_vertices[2].x / transformed_vertices[2].t,
                     transformed_vertices[2].y / transformed_vertices[2].t,
                     transformed_vertices[2].z / transformed_vertices[2].t, 
-                    transformed_vertices[2].t});
+                    1});
 
                 // RASTERIZE
                 std::vector<Vec4> triangle_vertices = {p_v0, p_v1, p_v2};

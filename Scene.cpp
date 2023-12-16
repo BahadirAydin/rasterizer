@@ -350,7 +350,7 @@ void Scene::convertPPMToPNG(string ppmFileName)
 {
 	string command;
 
-	command = "magick convert " + ppmFileName + " " + ppmFileName + ".png";
+	command = "magick convert " + ppmFileName + " ./outputs/" + ppmFileName + ".png";
 	system(command.c_str());
 }
 

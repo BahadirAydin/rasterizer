@@ -41,10 +41,11 @@ double computeHelper(double x, double y, double x1, double y1, double x2,
     return x * (y1 - y2) + y * (x2 - x1) + x1 * y2 - y1 * x2;
 }
 
+
 void TriangleTransformations::rasterize(
     // from triangle rasterization slides
     Image &image, const std::vector<Vec4> &triangle_vertices,
-    const std::vector<Color> &colors, int res_x, int res_y) {
+    const std::vector<Color> &colors, int res_x, int res_y, Depth &depth) {
 
     Vec4 v0 = triangle_vertices[0];
     Vec4 v1 = triangle_vertices[1];
@@ -75,6 +76,10 @@ void TriangleTransformations::rasterize(
             double gamma = computeHelper(x, y, v0.x, v0.y, v1.x, v1.y) /
                            computeHelper(v2.x, v2.y, v0.x, v0.y, v1.x, v1.y);
             if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                if (depth[x][y] < alpha * v0.z + beta * v1.z + gamma * v2.z) {
+                    continue;
+                }
+                depth[x][y] = alpha * v0.z + beta * v1.z + gamma * v2.z;
                 image[x][y] = multiplyColorWithScalar(colors[0], alpha);
                 image[x][y] = addColors(
                     multiplyColorWithScalar(colors[1], beta), image[x][y]);

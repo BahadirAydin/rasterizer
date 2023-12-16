@@ -421,7 +421,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                 // RASTERIZE
                 std::vector<Vec4> triangle_vertices = {p_v0, p_v1, p_v2};
                 std::vector<Color> colors = {*c0, *c1, *c2};
-                TriangleTransformations::rasterize(this->image,triangle_vertices,colors,camera->horRes,camera->verRes);
+                TriangleTransformations::rasterize(this->image,triangle_vertices,colors,camera->horRes,camera->verRes,this->depth);
             }
             else if(m->type == WIREFRAME_MESH)
             {

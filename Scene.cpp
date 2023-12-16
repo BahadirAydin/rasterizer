@@ -15,6 +15,7 @@
 #include "Triangle.h"
 #include "Helpers.h"
 #include "Scene.h"
+#include "Clipping.h"
 
 #include "Utils.h"
 #include "MeshTransformations.h"
@@ -433,22 +434,54 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             else if(m->type == WIREFRAME_MESH)
             {
                 // PERSPECTIVE DIVIDE
-                const Vec4 pers_v0 = Vec4({
+                Vec4 pers_v0 = Vec4({
                     transformed_vertices[0].x / transformed_vertices[0].t,
                     transformed_vertices[0].y / transformed_vertices[0].t,
                     transformed_vertices[0].z / transformed_vertices[0].t, 
                     1});
-                const Vec4 pers_v1 = Vec4{
+                Vec4 pers_v1 = Vec4{
                     transformed_vertices[1].x / transformed_vertices[1].t,
                     transformed_vertices[1].y / transformed_vertices[1].t,
                     transformed_vertices[1].z / transformed_vertices[1].t, 
                     1};
-                const Vec4 pers_v2 = Vec4{
+                Vec4 pers_v2 = Vec4{
                     transformed_vertices[2].x / transformed_vertices[2].t,
                     transformed_vertices[2].y / transformed_vertices[2].t,
                     transformed_vertices[2].z / transformed_vertices[2].t, 
                     1};
-                // TODO
+                Line l1 = {pers_v0, pers_v1, *c0, *c1};
+                Line l2 = {pers_v1, pers_v2, *c1, *c2};
+                Line l3 = {pers_v2, pers_v0, *c2, *c0};
+
+                // CLIPPING
+
+                bool l1_visible = Clipping::clipLine(l1);
+                bool l2_visible = Clipping::clipLine(l2);
+                bool l3_visible = Clipping::clipLine(l3);
+                if(l1_visible)
+                {
+                    // VIEWPORT TRANSFORMATION
+                    Vec4 v0 = multiplyMatrixWithVec4(viewportTransformationMatrix, l1.a);
+                    Vec4 v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, l1.b);
+                    // RASTERIZE
+                    Line l = {v0, v1, l1.aColor, l1.bColor};
+                    Clipping::rasterize(this->image, l);
+                }
+                if(l2_visible)
+                {
+                    Vec4 v0 = multiplyMatrixWithVec4(viewportTransformationMatrix, l2.a);
+                    Vec4 v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, l2.b);
+                    Line l = {v0, v1, l2.aColor, l2.bColor};
+                    Clipping::rasterize(this->image, l);
+                }
+                if(l3_visible)
+                {
+                    Vec4 v0 = multiplyMatrixWithVec4(viewportTransformationMatrix, l3.a);
+                    Vec4 v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, l3.b);
+                    Line l = {v0, v1, l3.aColor, l3.bColor};
+                    Clipping::rasterize(this->image, l);
+                }
+
 
             }
 

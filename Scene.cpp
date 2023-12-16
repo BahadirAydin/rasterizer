@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "Matrix4.h"
+#include "Mesh.h"
 #include "tinyxml2.h"
 #include "Triangle.h"
 #include "Helpers.h"
@@ -356,7 +357,6 @@ void Scene::convertPPMToPNG(string ppmFileName)
 */
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
-    // Camera Transformation
     Matrix4 cameraTransformationMatrix = Utils::worldToCameraMatrix(camera);
     double l = camera->left;
     double r = camera->right;
@@ -375,8 +375,50 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 
         for(Triangle &t : m->triangles)
         {
+            const Vec3 *v0 = this->vertices[t.vertexIds[0]-1];
+            const Vec3 *v1 = this->vertices[t.vertexIds[1]-1];
+            const Vec3 *v2 = this->vertices[t.vertexIds[2]-1];
+            const Color *c0 = this->colorsOfVertices[v0->colorId - 1];
+            const Color *c1 = this->colorsOfVertices[v1->colorId - 1];
+            const Color *c2 = this->colorsOfVertices[v2->colorId - 1];
             std::vector<Vec4> transformed_vertices = TriangleTransformations::transformTriangle(t, final , this->vertices);
-            
+
+            if(this->cullingEnabled)
+            {
+                // check if triangle is backfacing
+                const Vec3 new_v0 = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z}; 
+                const Vec3 new_v1 = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
+                const Vec3 new_v2 = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
+
+                const Vec3 v0v1 = subtractVec3(new_v1, new_v0);
+                const Vec3 v0v2 = subtractVec3(new_v2, new_v0);
+                const Vec3 cp = crossProductVec3(v0v1, v0v2);
+                const Vec3 normal = normalizeVec3(cp);
+                if (dotProductVec3(normal, new_v0) > 0) {
+                    continue;
+                }
+            }
+
+            if(m->type == SOLID_MESH)
+            {
+                const Vec4 p_v0 = multiplyMatrixWithVec4(viewportTransformationMatrix, Vec4({
+                    transformed_vertices[0].x / transformed_vertices[0].t,
+                    transformed_vertices[0].y / transformed_vertices[0].t,
+                    transformed_vertices[0].z / transformed_vertices[0].t, 
+                    transformed_vertices[0].t}));
+                const Vec4 p_v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, Vec4{
+                    transformed_vertices[1].x / transformed_vertices[1].t,
+                    transformed_vertices[1].y / transformed_vertices[1].t,
+                    transformed_vertices[1].z / transformed_vertices[1].t, 
+                    transformed_vertices[1].t});
+                const Vec4 p_v2 = multiplyMatrixWithVec4(viewportTransformationMatrix,Vec4{
+                    transformed_vertices[2].x / transformed_vertices[2].t,
+                    transformed_vertices[2].y / transformed_vertices[2].t,
+                    transformed_vertices[2].z / transformed_vertices[2].t, 
+                    transformed_vertices[2].t});
+                // RASTERIZE
+
+            }
         }
 
     }

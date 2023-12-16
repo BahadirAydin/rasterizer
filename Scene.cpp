@@ -7,10 +7,13 @@
 #include <vector>
 #include <cmath>
 
+#include "Matrix4.h"
 #include "tinyxml2.h"
 #include "Triangle.h"
 #include "Helpers.h"
 #include "Scene.h"
+
+#include "Utils.h"
 
 using namespace tinyxml2;
 using namespace std;
@@ -351,5 +354,16 @@ void Scene::convertPPMToPNG(string ppmFileName)
 */
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
-	// TODO: Implement this function
+    // Camera Transformation
+    Matrix4 cameraTransformationMatrix = Utils::worldToCameraMatrix(camera);
+    double l = camera->left;
+    double r = camera->right;
+    double b = camera->bottom;
+    double t = camera->top;
+    double n = camera->near;
+    double f = camera->far;
+    Matrix4 projectionTransformationMatrix = Utils::perspectiveProjectionMatrix(l, r, b, t, n, f);
+    Matrix4 viewportTransformationMatrix = Utils::viewportMatrix(camera->horRes, camera->verRes);
+
+
 }

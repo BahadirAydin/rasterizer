@@ -70,10 +70,11 @@ Matrix4 MeshTransformations::rotateMesh(Rotation *r, Matrix4 &matrix) {
     Vec3 w = normalizeVec3(crossProductVec3(u, v));
 
     double m_inverse_val[4][4] = {
-        {u.x,v.y,w.z,0},
-        {u.y,v.y,w.y,0},
-        {u.z,v.z,w.z,0},
-        {0,0,0,1}
+        {u.x, v.x, w.x, 0},
+        {u.y, v.y, w.y, 0},
+        {u.z, v.z, w.z, 0},
+        {0, 0, 0, 1}
+
     };
     Matrix4 m_inverse(m_inverse_val);
     Matrix4 m = transposeMatrix(m_inverse);

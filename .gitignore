@@ -1,4 +1,6 @@
 rasterizer
+*.ppm
+*.png
 
 # Prerequisites
 *.d

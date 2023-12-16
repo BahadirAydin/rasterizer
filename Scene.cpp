@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 #include "Matrix4.h"
 #include "Mesh.h"
@@ -372,6 +373,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
         Matrix4 meshTransformationMatrix = MeshTransformations::applyAllTransformations(m->numberOfTransformations, m->transformationTypes, m->transformationIds, this->translations, this->scalings, this->rotations);
         Matrix4 proj_mult_camera = multiplyMatrixWithMatrix(projectionTransformationMatrix, cameraTransformationMatrix);
         Matrix4 final = multiplyMatrixWithMatrix(proj_mult_camera, meshTransformationMatrix);
+
 
         for(Triangle &t : m->triangles)
         {

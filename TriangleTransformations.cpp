@@ -20,9 +20,9 @@ std::vector<Vec4> TriangleTransformations::transformTriangle(
     int v0_id = t.vertexIds[0];
     int v1_id = t.vertexIds[1];
     int v2_id = t.vertexIds[2];
-    Vec3 *v0 = vertices[v0_id];
-    Vec3 *v1 = vertices[v1_id];
-    Vec3 *v2 = vertices[v2_id];
+    Vec3 *v0 = vertices[v0_id - 1];
+    Vec3 *v1 = vertices[v1_id - 1];
+    Vec3 *v2 = vertices[v2_id - 1];
 
     Vec4 v0_4(v0->x, v0->y, v0->z, 1);
     Vec4 v1_4(v1->x, v1->y, v1->z, 1);

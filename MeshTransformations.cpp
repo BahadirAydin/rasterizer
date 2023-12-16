@@ -59,10 +59,10 @@ Matrix4 MeshTransformations::rotateMesh(Rotation *r, Matrix4 &matrix) {
     // from page 41)
     Vec3 u(r->ux, r->uy, r->uz);
     Vec3 v;
-    double min = min_of_three(u.x, u.y, u.z);
-    if (min == u.x) {
+    double min = min_of_three(std::abs(u.x), std::abs(u.y), std::abs(u.z));
+    if (min == std::abs(u.x)) {
         v = normalizeVec3(Vec3(0, -u.z, u.y));
-    } else if (min == u.y) {
+    } else if (min == std::abs(u.y)) {
         v = normalizeVec3(Vec3(-u.z, 0, u.x));
     } else {
         v = normalizeVec3(Vec3(-u.y, u.x, 0));

@@ -20,5 +20,6 @@ struct Line {
 
 namespace Clipping {
 bool clipLine(Line &line);
-void rasterize(Image &image, Line &line, Depth &depth);
+void rasterize(Image &image, Line &line, Depth &depth, int max_width,
+               int max_height);
 } // namespace Clipping

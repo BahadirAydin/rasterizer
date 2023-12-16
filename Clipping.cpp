@@ -86,8 +86,9 @@ void swap(Line &line) {
     line.bColor = temp2;
 }
 
-void Clipping::rasterize(Image &image, Line &line, Depth &depth) {
-    double slope = std::abs((line.b.y - line.a.y) / (line.b.x - line.a.x));
+void Clipping::rasterize(Image &image, Line &line, Depth &depth, int max_width,int max_height) {
+    double slope =
+        std::abs((line.b.y - line.a.y) / std::abs((line.b.x - line.a.x)));
     int i = 1;
     if (slope > 0 && slope <= 1) {
         if (line.a.x > line.b.x) {
@@ -98,12 +99,15 @@ void Clipping::rasterize(Image &image, Line &line, Depth &depth) {
         }
         Color c = line.aColor;
         int y = line.a.y;
-        int d = 2 * (line.a.y - line.b.y) + i * (line.b.x - line.a.x);
+        int d = (line.a.y - line.b.y) + i * (line.b.x - line.a.x) * 0.5;
         Color c_change =
             Color((line.bColor.r - line.aColor.r) / (line.b.x - line.a.x),
                   (line.bColor.g - line.aColor.g) / (line.b.x - line.a.x),
                   (line.bColor.b - line.aColor.b) / (line.b.x - line.a.x));
         for (int x = line.a.x; x <= line.b.x; x++) {
+            if (x < 0 || x >= max_width || y < 0 || y >= max_height) {
+                continue;
+            }
             if (depth[x][y] > line.a.z) {
                 depth[x][y] = line.a.z;
                 image[x][y] = c;
@@ -113,9 +117,9 @@ void Clipping::rasterize(Image &image, Line &line, Depth &depth) {
             c.b += c_change.b;
             if (i * d < 0) {
                 y = y + i;
-                d += 2 * ((line.a.y - line.b.y) + (line.b.x - line.a.x) * i);
+                d += ((line.a.y - line.b.y) + (line.b.x - line.a.x) * i);
             } else {
-                d += 2 * (line.a.y - line.b.y);
+                d += (line.a.y - line.b.y);
             }
         }
     } else if (slope > 1) {
@@ -127,12 +131,15 @@ void Clipping::rasterize(Image &image, Line &line, Depth &depth) {
         }
         Color c = line.aColor;
         int x = line.a.x;
-        int d = 2 * (line.a.x - line.b.x) + i * (line.a.y - line.b.y);
+        int d = (line.b.x - line.a.x) + i * (line.a.y - line.b.y) * 0.5;
         Color c_change =
             Color((line.bColor.r - line.aColor.r) / (line.b.y - line.a.y),
                   (line.bColor.g - line.aColor.g) / (line.b.y - line.a.y),
                   (line.bColor.b - line.aColor.b) / (line.b.y - line.a.y));
         for (int y = line.a.y; y <= line.b.y; y++) {
+            if ( y < 0 || y >= max_height || x < 0 || x >= max_width) {
+                continue;
+            }
             if (depth[x][y] > line.a.z) {
                 depth[x][y] = line.a.z;
                 image[x][y] = c;
@@ -142,9 +149,9 @@ void Clipping::rasterize(Image &image, Line &line, Depth &depth) {
             c.b += c_change.b;
             if (-i * d < 0) {
                 x = x + i;
-                d += 2 * ((line.a.x - line.b.x) + (line.a.y - line.b.y) * i);
+                d += (line.b.x - line.a.x) + (line.a.y - line.b.y) * i;
             } else {
-                d += 2 * (line.a.x - line.b.x);
+                d += (line.b.x - line.a.x);
             }
         }
     }

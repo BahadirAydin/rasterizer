@@ -1,6 +1,7 @@
 #include "TriangleTransformations.h"
 #include "Helpers.h"
 #include "MeshTransformations.h"
+#include <iostream>
 
 Vec4 TriangleTransformations::transformVertex(Vec4 *v, Matrix4 &m) {
     return multiplyMatrixWithVec4(m, *v);
@@ -49,22 +50,18 @@ void TriangleTransformations::rasterize(
     Vec4 v1 = triangle_vertices[1];
     Vec4 v2 = triangle_vertices[2];
 
-    int max_x = std::min(std::max(std::round(MeshTransformations::max_of_three(
-                                      v0.y, v1.y, v2.y)),
-                                  0.0),
-                         (double)res_x - 1);
-    int max_y = std::min(std::max(std::round(MeshTransformations::max_of_three(
-                                      v0.x, v1.x, v2.x)),
-                                  0.0),
-                         (double)res_y - 1);
-    int min_x = std::min(std::max(std::round(MeshTransformations::min_of_three(
-                                      v0.y, v1.y, v2.y)),
-                                  0.0),
-                         (double)res_x - 1);
-    int min_y = std::min(std::max(std::round(MeshTransformations::min_of_three(
-                                      v0.x, v1.x, v2.x)),
-                                  0.0),
-                         (double)res_y - 1);
+    int max_x = std::min(
+        std::max(MeshTransformations::max_of_three(v0.x, v1.x, v2.x), 0.0),
+        (double)res_x - 1);
+    int max_y = std::min(
+        std::max(MeshTransformations::max_of_three(v0.y, v1.y, v2.y), 0.0),
+        (double)res_y - 1);
+    int min_x = std::min(
+        std::max(MeshTransformations::min_of_three(v0.x, v1.x, v2.x), 0.0),
+        (double)res_x - 1);
+    int min_y = std::min(
+        std::max(MeshTransformations::min_of_three(v0.y, v1.y, v2.y), 0.0),
+        (double)res_y - 1);
 
     for (int x = min_x; x <= max_x; x++) {
         for (int y = min_y; y <= max_y; y++) {

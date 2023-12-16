@@ -416,8 +416,11 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                     transformed_vertices[2].y / transformed_vertices[2].t,
                     transformed_vertices[2].z / transformed_vertices[2].t, 
                     transformed_vertices[2].t});
-                // RASTERIZE
 
+                // RASTERIZE
+                std::vector<Vec4> triangle_vertices = {p_v0, p_v1, p_v2};
+                std::vector<Color> colors = {*c0, *c1, *c2};
+                TriangleTransformations::rasterize(this->image,triangle_vertices,colors,camera->horRes,camera->verRes);
             }
         }
 

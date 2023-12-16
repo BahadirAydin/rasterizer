@@ -6,6 +6,14 @@ Vec4 TriangleTransformations::transformVertex(Vec4 *v, Matrix4 &m) {
     return multiplyMatrixWithVec4(m, *v);
 }
 
+Color multiplyColorWithScalar(const Color c, double scalar) {
+    return Color(c.r * scalar, c.g * scalar, c.b * scalar);
+}
+
+Color addColors(const Color c1, const Color c2) {
+    return Color(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b);
+}
+
 std::vector<Vec4> TriangleTransformations::transformTriangle(
     const Triangle &t, const Matrix4 &transformation_matrix,
     const std::vector<Vec3 *> &vertices) {
@@ -27,10 +35,16 @@ std::vector<Vec4> TriangleTransformations::transformTriangle(
     return std::vector<Vec4>{v0_transformed, v1_transformed, v2_transformed};
 }
 
+double computeHelper(double x, double y, double x1, double y1, double x2,
+                     double y2) {
+    return x * (y1 - y2) + y * (x2 - x1) + x1 * y2 - y1 * x2;
+}
+
 void TriangleTransformations::rasterize(
+    // from triangle rasterization slides
     Image &image, const std::vector<Vec4> &triangle_vertices,
     const std::vector<Color> &colors, int res_x, int res_y) {
-    // Compute line equations
+
     Vec4 v0 = triangle_vertices[0];
     Vec4 v1 = triangle_vertices[1];
     Vec4 v2 = triangle_vertices[2];
@@ -54,18 +68,22 @@ void TriangleTransformations::rasterize(
 
     for (int x = min_x; x <= max_x; x++) {
         for (int y = min_y; y <= max_y; y++) {
-            double f12 = x * (v1.y - v2.y) + y * (v2.x - v1.x) + v1.x * v2.y -
-                         v2.x * v1.y;
-            double f20 = x * (v2.y - v0.y) + y * (v0.x - v2.x) + v2.x * v0.y -
-                         v0.x * v2.y;
-            double f01 = x * (v0.y - v1.y) + y * (v1.x - v0.x) + v0.x * v1.y -
-                         v1.x * v0.y;
-            double alpha = f12 / (v0.y * (v1.x - v2.x) + v1.y * (v2.x - v0.x) +
-                                  v2.y * (v0.x - v1.x));
-            double beta = f20 / (v0.y * (v1.x - v2.x) + v1.y * (v2.x - v0.x) +
-                                 v2.y * (v0.x - v1.x));
-            double gamma = f01 / (v0.y * (v1.x - v2.x) + v1.y * (v2.x - v0.x) +
-                                  v2.y * (v0.x - v1.x));
+            // f12
+            double alpha = computeHelper(x, y, v1.x, v1.y, v2.x, v2.y) /
+                           computeHelper(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+            // f20
+            double beta = computeHelper(x, y, v2.x, v2.y, v0.x, v0.y) /
+                          computeHelper(v1.x, v1.y, v2.x, v2.y, v0.x, v0.y);
+            // f01
+            double gamma = computeHelper(x, y, v0.x, v0.y, v1.x, v1.y) /
+                           computeHelper(v2.x, v2.y, v0.x, v0.y, v1.x, v1.y);
+            if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                image[x][y] = multiplyColorWithScalar(colors[0], alpha);
+                image[x][y] = addColors(
+                    multiplyColorWithScalar(colors[1], beta), image[x][y]);
+                image[x][y] = addColors(
+                    multiplyColorWithScalar(colors[2], gamma), image[x][y]);
+            }
         }
     }
 }

@@ -86,7 +86,7 @@ void swap(Line &line) {
     line.bColor = temp2;
 }
 
-void Clipping::rasterize(Image &image, Line &line) {
+void Clipping::rasterize(Image &image, Line &line, Depth &depth) {
     double slope = std::abs((line.b.y - line.a.y) / (line.b.x - line.a.x));
     int i = 1;
     if (slope > 0 && slope <= 1) {
@@ -104,7 +104,10 @@ void Clipping::rasterize(Image &image, Line &line) {
                   (line.bColor.g - line.aColor.g) / (line.b.x - line.a.x),
                   (line.bColor.b - line.aColor.b) / (line.b.x - line.a.x));
         for (int x = line.a.x; x <= line.b.x; x++) {
-            image[x][y] = c;
+            if (depth[x][y] > line.a.z) {
+                depth[x][y] = line.a.z;
+                image[x][y] = c;
+            }
             c.r += c_change.r;
             c.g += c_change.g;
             c.b += c_change.b;
@@ -130,7 +133,10 @@ void Clipping::rasterize(Image &image, Line &line) {
                   (line.bColor.g - line.aColor.g) / (line.b.y - line.a.y),
                   (line.bColor.b - line.aColor.b) / (line.b.y - line.a.y));
         for (int y = line.a.y; y <= line.b.y; y++) {
-            image[x][y] = c;
+            if (depth[x][y] > line.a.z) {
+                depth[x][y] = line.a.z;
+                image[x][y] = c;
+            }
             c.r += c_change.r;
             c.g += c_change.g;
             c.b += c_change.b;

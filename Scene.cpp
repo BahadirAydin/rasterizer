@@ -465,21 +465,21 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                     Vec4 v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, l1.b);
                     // RASTERIZE
                     Line l = {v0, v1, l1.aColor, l1.bColor};
-                    Clipping::rasterize(this->image, l);
+                    Clipping::rasterize(this->image, l, this->depth);
                 }
                 if(l2_visible)
                 {
                     Vec4 v0 = multiplyMatrixWithVec4(viewportTransformationMatrix, l2.a);
                     Vec4 v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, l2.b);
                     Line l = {v0, v1, l2.aColor, l2.bColor};
-                    Clipping::rasterize(this->image, l);
+                    Clipping::rasterize(this->image, l, this->depth);
                 }
                 if(l3_visible)
                 {
                     Vec4 v0 = multiplyMatrixWithVec4(viewportTransformationMatrix, l3.a);
                     Vec4 v1 = multiplyMatrixWithVec4(viewportTransformationMatrix, l3.b);
                     Line l = {v0, v1, l3.aColor, l3.bColor};
-                    Clipping::rasterize(this->image, l);
+                    Clipping::rasterize(this->image, l, this->depth);
                 }
 
 
@@ -488,6 +488,4 @@ void Scene::forwardRenderingPipeline(Camera *camera)
         }
 
     }
-
-
 }

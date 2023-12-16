@@ -28,6 +28,7 @@ Matrix4 applyAllTransformations(int num_transformations,
                                 std::vector<Rotation *> &rotations);
 
 double min_of_three(double a, double b, double c);
+double max_of_three(double a, double b, double c);
 double degreesToRadians(double degrees);
 Matrix4 transposeMatrix(Matrix4 &m);
 Matrix4 rotationMatrixAlongX(double angle);

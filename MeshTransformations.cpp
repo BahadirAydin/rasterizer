@@ -7,6 +7,10 @@ double MeshTransformations::min_of_three(double a, double b, double c) {
     return std::min(a, std::min(b, c));
 }
 
+double MeshTransformations::max_of_three(double a, double b, double c) {
+    return std::max(a, std::max(b, c));
+}
+
 double MeshTransformations::degreesToRadians(double degrees) {
     return degrees * M_PI / 180;
 }
@@ -21,7 +25,7 @@ Matrix4 MeshTransformations::transposeMatrix(Matrix4 &m) {
     return result;
 }
 Matrix4 MeshTransformations::rotationMatrixAlongX(double angle){
-    double r= degreesToRadians(angle);
+    double r = degreesToRadians(angle);
     double val[4][4] = {
         {1,0,0,0},
         {0,cos(r),-sin(r),0},
@@ -73,7 +77,7 @@ Matrix4 MeshTransformations::rotateMesh(Rotation *r, Matrix4 &matrix) {
     };
     Matrix4 m_inverse(m_inverse_val);
     Matrix4 m = transposeMatrix(m_inverse);
-    Matrix4 m_inverse_mult_rotatation = multiplyMatrixWithMatrix(m_inverse, rotationMatrixAlongX(r.angle));
+    Matrix4 m_inverse_mult_rotatation = multiplyMatrixWithMatrix(m_inverse, rotationMatrixAlongX(r->angle));
     Matrix4 result = multiplyMatrixWithMatrix(m_inverse_mult_rotatation, m);
     return multiplyMatrixWithMatrix(result, matrix);
 } 

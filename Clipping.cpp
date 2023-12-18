@@ -90,7 +90,7 @@ void Clipping::rasterize(Image &image, Line &line, Depth &depth, int max_width,i
     double slope =
         std::abs((line.b.y - line.a.y) / std::abs((line.b.x - line.a.x)));
     int i = 1;
-    if (slope > 0 && slope <= 1) {
+    if (slope >= 0 && slope <= 1) {
         if (line.a.x > line.b.x) {
             swap(line);
         }
